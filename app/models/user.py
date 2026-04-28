@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime  # 导入SQLAlchemy字段类型
 from sqlalchemy.sql import func  # 导入SQL函数，用于数据库级函数调用
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship  # 导入关系映射函数
 from app.database import Base  # 导入ORM基类
 
 
@@ -38,5 +38,13 @@ class User(Base):  # 用户模型类，继承Base使其成为ORM映射类
     # 作用：server_default=func.now()让数据库（而非Python）生成时间戳，
     # 好处：1.避免客户端时间不准；2.批量插入时数据库统一生成；
     # timezone=True存储带时区的时间，避免时区混乱问题
+
     posts = relationship("Post", back_populates="author")
+    # 用户-文章关系（一对多）
+    # 作用：relationship建立ORM层面的关联，user.posts可直接获取该用户的所有文章，
+    # 无需手动JOIN查询；back_populates="author"与Post.author形成双向关联，
+    # 使post.author也能反向获取用户对象
+
     comments = relationship("Comment", back_populates="author")
+    # 用户-评论关系（一对多）
+    # 作用：同上，user.comments获取该用户的所有评论；双向关联便于双向导航

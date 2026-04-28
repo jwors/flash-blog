@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(pip install:*)",
+      "Bash(mkdir -p app/models app/schemas app/routers)",
+      "Bash(touch app/__init__.py app/models/__init__.py app/schemas/__init__.py app/routers/__init__.py)",
+      "Bash(uvicorn app.main:app:*)",
+      "Bash(python:*)",
+      "Bash(cat C:\\\\\\\\Users\\\\\\\\PC\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\E--chyProject-flask-blog\\\\\\\\fc234ec5-d353-4467-a472-38ffc8cad3d7\\\\\\\\tasks\\\\\\\\bv5rkk46a.output)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(taskkill /F /IM python.exe)"
+    ]
+  }
+}
