@@ -22,7 +22,6 @@ def create_post(post: PostCreate, db: Session = Depends(get_db)):
         content=post.content,
         summary=post.summary,
         author_id=post.author_id,
-        category_id=post.category_id
     )
     # 创建ORM对象，将请求数据转换为数据库模型
     db.add(db_post)  # 添加到会话
@@ -41,7 +40,7 @@ def list_posts(
     """获取文章列表，支持分页和分类过滤"""
     query = db.query(Post)  # 创建查询对象
     if category_id:
-        query = query.filter(Post.category_id == category_id)  # 添加分类过滤条件
+         query = query.filter(Post.categories.any(Category.id == category_id)) # 添加分类过滤条件
     posts = query.offset(skip).limit(limit).all()  # 执行分页查询，返回结果列表
     return posts
 
