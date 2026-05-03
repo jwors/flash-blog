@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Depends  # 导入FastAPI核心类和依赖注入函数
-from app.database import engine, Base, get_db  # 导入数据库引擎、基类和会话依赖
+from fastapi import FastAPI  # 导入FastAPI核心类
+from app.database import engine, Base  # 导入数据库引擎和基类
 from app.routers.user import router as user_router
 from app.routers.post import router as post_router
 from app.routers.comments import router as comments_router
@@ -15,7 +15,7 @@ app = FastAPI(title="Blog API", version="1.0")
 # 作用：app是整个应用的入口，所有路由、中间件都注册到此实例；
 # title和version会显示在自动生成的API文档中
 
- # 注册路由
+# 注册路由
 app.include_router(user_router)
 app.include_router(post_router)
 app.include_router(comments_router)
@@ -26,9 +26,9 @@ app.include_router(categories_router)
 def root():
     """根路径，返回欢迎信息"""
     return {"message": "Welcome to the Blog API!"}
-# 作用：提供API入口测试，用户访问根路径可确认服务运行状态
 
 
 @app.get("/health")
 def health_check():
+    """健康检查接口，用于监控服务状态"""
     return {"status": "ok"}

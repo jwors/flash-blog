@@ -13,6 +13,7 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
     """文章创建请求数据结构"""
     author_id: int  # 作者ID，关联用户表
+    category_ids: Optional[List[int]] = None  # 分类ID列表，多对多关系，可选
 
 
 class PostResponse(PostBase):
