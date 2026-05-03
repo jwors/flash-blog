@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{% if edit_mode %}编辑文章{% else %}写文章{% endif %} - 我的博客{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <h2 class="mb-4">
+            <i class="bi bi-pencil-square"></i> {% if edit_mode %}编辑文章{% else %}写新文章{% endif %}
+        </h2>
+
+        <form action="/write" method="post">
+            <!-- 标题 -->
+            <div class="mb-3">
+                <label for="title" class="form-label">标题</label>
+                <input type="text" id="title" name="title" class="form-control"
+                       value="{{ post.title if post else '' }}" required>
+            </div>
+
+            <!-- 摘要 -->
+            <div class="mb-3">
+                <label for="summary" class="form-label">摘要（可选）</label>
+                <input type="text" id="summary" name="summary" class="form-control"
+                       value="{{ post.summary if post else '' }}" placeholder="简短描述文章内容...">
+            </div>
+
+            <!-- 正文 -->
+            <div class="mb-3">
+                <label for="content" class="form-label">正文内容</label>
+                <textarea id="content" name="content" class="form-control" rows="15" required>{{ post.content if post else '' }}</textarea>
+                <small class="text-muted">支持 Markdown 格式（后续功能）</small>
+            </div>
+
+            <!-- 分类 -->
+            <div class="mb-3">
+                <label class="form-label">分类（可选）</label>
+                <div class="row">
+                    {% for cat in categories %}
+                        <div class="col-md-4 col-lg-3">
+                            <div class="form-check">
+                                <input type="checkbox" name="category_ids" value="{{ cat.id }}"
+                                       class="form-check-input">
+                                <label class="form-check-label">{{ cat.name }}</label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 按钮 -->
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> {% if edit_mode %}保存修改{% else %}发布文章{% endif %}
+                </button>
+                <a href="/" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> 取消
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 右侧提示 -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightbulb"></i> 写作提示
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check text-success"></i> 标题要简洁明了</li>
+                    <li><i class="bi bi-check text-success"></i> 摘要帮助读者快速了解内容</li>
+                    <li><i class="bi bi-check text-success"></i> 正文可以分段，每段一个主题</li>
+                    <li><i class="bi bi-check text-success"></i> 选择合适的分类便于读者查找</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

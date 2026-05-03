@@ -1,0 +1,98 @@
+/* 自定义样式 */
+
+/* 文章卡片悬停效果 */
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+/* 文章正文样式 */
+.article-content {
+    line-height: 1.8;
+    font-size: 16px;
+}
+
+.article-content p {
+    margin-bottom: 1rem;
+}
+
+.article-content h1, .article-content h2, .article-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.article-content code {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.article-content pre {
+    background: #212529;
+    color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.article-content blockquote {
+    border-left: 4px solid #0d6efd;
+    padding-left: 1rem;
+    margin-left: 0;
+    color: #6c757d;
+}
+
+/* 导航栏链接悬停 */
+.navbar-brand:hover {
+    color: #0d6efd !important;
+}
+
+/* 分页样式 */
+.pagination .page-link {
+    border-radius: 4px;
+    margin: 0 2px;
+}
+
+/* 表单样式优化 */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* 按钮间距 */
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+/* 卡片标题链接 */
+.card-title a {
+    color: #212529;
+}
+
+.card-title a:hover {
+    color: #0d6efd;
+}
+
+/* 评论卡片 */
+.card.ms-4 {
+    margin-left: 2rem !important;
+    background: #f8f9fa;
+}
+
+/* 页脚固定 */
+footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .article-content {
+        padding: 1rem;
+    }
+
+    .card.ms-4 {
+        margin-left: 1rem !important;
+    }
+}

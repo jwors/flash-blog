@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - 我的博客{% endblock %}
+
+{% block content %}
+<!-- 文章标题 -->
+<div class="row">
+    <div class="col">
+        <h1 class="mb-3">{{ post.title }}</h1>
+        <div class="text-muted mb-4">
+            <span><i class="bi bi-person"></i> {{ post.author_name or '匿名' }}</span>
+            <span class="mx-3">|</span>
+            <span><i class="bi bi-calendar"></i> {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            {% if post.updated_at %}
+                <span class="mx-3">|</span>
+                <span><i class="bi bi-clock"></i> 更新于 {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            {% endif %}
+        </div>
+        <!-- 分类标签 -->
+        {% if post.categories %}
+            <div class="mb-4">
+                {% for cat in post.categories %}
+                    <a href="/?category_id={{ cat.id }}" class="badge bg-primary text-decoration-none">{{ cat }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 文章摘要 -->
+{% if post.summary %}
+    <div class="row mb-4">
+        <div class="col">
+            <div class="alert alert-light border">
+                <strong><i class="bi bi-text-wrap"></i> 摘要：</strong>
+                {{ post.summary }}
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- 文章正文 -->
+<div class="row">
+    <div class="col">
+        <div class="article-content p-4 bg-light rounded">
+            {{ post.content | safe }}
+        </div>
+    </div>
+</div>
+
+<!-- 操作按钮 -->
+<div class="row mt-4">
+    <div class="col">
+        {% if current_user and current_user.id == post.author_id %}
+            <a href="/posts/{{ post.id }}/edit" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> 编辑
+            </a>
+            <button type="button" class="btn btn-danger" onclick="confirmDelete({{ post.id }})">
+                <i class="bi bi-trash"></i> 删除
+            </button>
+        {% endif %}
+        <a href="/" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 返回首页
+        </a>
+    </div>
+</div>
+
+<!-- 评论区域 -->
+<div class="row mt-5">
+    <div class="col">
+        <h4><i class="bi bi-chat-dots"></i> 评论 ({{ comments|length }})</h4>
+
+        <!-- 发表评论 -->
+        {% if current_user %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form action="/comments" method="post">
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <input type="hidden" name="author_id" value="{{ current_user.id }}">
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="3" placeholder="写下你的评论..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> 发表评论
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <a href="/auth/login">登录</a> 后才能发表评论
+            </div>
+        {% endif %}
+
+        <!-- 评论列表 -->
+        {% for comment in comments %}
+            <div class="card mb-3 {% if comment.parent_id %}ms-4{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <strong><i class="bi bi-person-circle"></i> {{ comment.author_name or '匿名' }}</strong>
+                        <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    <p class="mt-2">{{ comment.content }}</p>
+                    {% if current_user %}
+                        <button class="btn btn-sm btn-outline-secondary" onclick="showReplyForm({{ comment.id }})">
+                            <i class="bi bi-reply"></i> 回复
+                        </button>
+                        <div id="reply-form-{{ comment.id }}" class="mt-2" style="display:none;">
+                            <form action="/comments" method="post">
+                                <input type="hidden" name="post_id" value="{{ post.id }}">
+                                <input type="hidden" name="author_id" value="{{ current_user.id }}">
+                                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                <textarea name="content" class="form-control mb-2" rows="2" placeholder="回复..." required></textarea>
+                                <button type="submit" class="btn btn-sm btn-primary">发送</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="text-muted">暂无评论</div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 删除确认
+function confirmDelete(postId) {
+    if (confirm('确定要删除这篇文章吗？')) {
+        fetch('/posts/' + postId, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.detail) {
+                    alert('删除成功');
+                    window.location.href = '/';
+                }
+            });
+    }
+}
+
+// 显示回复表单
+function showReplyForm(commentId) {
+    document.getElementById('reply-form-' + commentId).style.display = 'block';
+}
+</script>
+{% endblock %}
