@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException  # 导入路由类、依赖注入、异常类
+from fastapi import APIRouter, Depends, HTTPException, Query  # 导入路由类、依赖注入、异常类
 from sqlalchemy.orm import Session  # 导入会话类型
 from typing import List, Optional  # 导入列表和可选类型
 from app.database import get_db  # 导入数据库会话依赖
 from app.models.post import Post  # 导入文章模型
 from app.models.category import Category  # 导入分类模型
-from app.schemas.post import PostCreate, PostResponse  # 导入文章数据结构
+from app.schemas.post import PostCreate, PostResponse,PostListResponse,PostDetailResponse  # 导入文章数据结构
 
 router = APIRouter(prefix="/posts", tags=['文章'])
 
@@ -29,11 +29,13 @@ def create_post(post: PostCreate, db: Session = Depends(get_db)):
     return db_post  # 返回文章对象
 
 
-@router.get("/", response_model=List[PostResponse])
+@router.get("/", response_model=PostListResponse)
 def list_posts(
-    skip: int = 0,  # 分页偏移量
-    limit: int = 10,  # 每页数量
-    category_id: Optional[int] = None,  # 分类过滤
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    category_id: Optional[int] = None,
+    sort_by: str = Query("created_at", regex="^(created_at|updated_at)$"),
+    order: str = Query("desc", regex="^(asc|desc)$"),
     db: Session = Depends(get_db)
 ):
     """获取文章列表，支持分页和分类过滤"""
@@ -41,17 +43,46 @@ def list_posts(
     if category_id:
         # 多对多过滤：查询属于指定分类的文章
         query = query.filter(Post.categories.any(Category.id == category_id))
-    posts = query.offset(skip).limit(limit).all()
-    return posts
+    total = query.count()
+      # 排序
+
+    sort_column = getattr(Post, sort_by)
+    if order == "desc":
+          query = query.order_by(sort_column.desc())
+    else:
+          query = query.order_by(sort_column.asc())
+
+      # 分页
+    offset = (page - 1) * limit
+    posts = query.offset(offset).limit(limit).all()
+    has_next = offset + limit < total
+    return PostListResponse(
+        items=posts,
+        total=total,
+        page=page,
+        limit=limit,
+        hasNext=has_next
+    )
 
 
-@router.get("/{post_id}", response_model=PostResponse)
+@router.get("/{post_id}", response_model=PostDetailResponse)
 def get_post(post_id: int, db: Session = Depends(get_db)):
     """获取文章详情"""
     db_post = db.query(Post).filter(Post.id == post_id).first()
     if not db_post:
         raise HTTPException(status_code=404, detail="文章不存在")
-    return db_post
+    response = PostDetailResponse(
+        id=db_post.id,
+        title=db_post.title,
+        content=db_post.content,
+        summary=db_post.summary,
+        author_id=db_post.author_id,
+        created_at=db_post.created_at,
+        updated_at=db_post.updated_at,
+        author_name=db_post.author.username,
+        categories=[category.name for category in db_post.categories]
+    )
+    return response
 
 
 @router.put("/{post_id}", response_model=PostResponse)

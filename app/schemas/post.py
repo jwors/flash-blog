@@ -27,3 +27,19 @@ class PostResponse(PostBase):
         from_attributes = True
         # 配置：允许从ORM对象读取数据
         # 作用：使Pydantic能直接接受SQLAlchemy模型对象，自动提取字段值
+
+class PostListResponse(BaseModel):
+    items: List[PostResponse]
+    total: int
+    page: int
+    limit: int
+    hasNext: bool
+
+    class Config:
+        from_attributes = True
+        # 配置：允许从ORM对象读取数据
+        # 作用：使Pydantic能直接接受SQLAlchemy模型对象，自动提取字段值
+
+class PostDetailResponse(PostResponse):
+    author_name:Optional[str] = None
+    categories: List[str] = []

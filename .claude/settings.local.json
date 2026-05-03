@@ -11,7 +11,11 @@
       "Bash(git add:*)",
       "Bash(git commit -m ':*)",
       "Bash(git push:*)",
-      "Bash(taskkill /F /IM python.exe)"
+      "Bash(taskkill /F /IM python.exe)",
+      "Bash(pkill -f uvicorn)",
+      "Bash(pkill -f python)",
+      "Bash(taskkill //F //PID 19608)",
+      "Bash(taskkill //F //PID 14176)"
     ]
   }
 }
