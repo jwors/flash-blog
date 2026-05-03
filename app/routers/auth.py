@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException  # 导入路由相关类
+from fastapi import APIRouter, Request, Depends, HTTPException, Form  # 导入路由相关类
 from fastapi.responses import HTMLResponse, RedirectResponse  # 导入响应类
 from fastapi.templating import Jinja2Templates  # 导入模板引擎
 from sqlalchemy.orm import Session  # 导入会话类型
@@ -37,8 +37,8 @@ def login_page(request: Request):
 @router.post("/auth/login")
 def login_submit(
     request: Request,
-    username: str,
-    password: str,
+    username: str = Form(...),
+    password: str = Form(...),
     db: Session = Depends(get_db)
 ):
     """处理登录表单提交"""
@@ -50,7 +50,8 @@ def login_submit(
             {"request": request, "error": "用户名或密码错误"}
         )
 
-    request.session["user_id"] = user.id
+    # TODO: 启用 session 后恢复
+    # request.session["user_id"] = user.id
     return RedirectResponse(url="/", status_code=303)
 
 
@@ -66,9 +67,9 @@ def register_page(request: Request):
 @router.post("/auth/register")
 def register_submit(
     request: Request,
-    username: str,
-    email: str,
-    password: str,
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
     db: Session = Depends(get_db)
 ):
     """处理注册表单提交"""
@@ -93,12 +94,14 @@ def register_submit(
     db.commit()
     db.refresh(user)
 
-    request.session["user_id"] = user.id
-    return RedirectResponse(url="/", status_code=303)
+    # TODO: 启用 session 后恢复
+    # request.session["user_id"] = user.id
+    return RedirectResponse(url="/auth/login", status_code=303)
 
 
 @router.get("/auth/logout")
 def logout(request: Request):
     """退出登录"""
-    request.session.clear()
+    # TODO: 启用 session 后恢复
+    # request.session.clear()
     return RedirectResponse(url="/", status_code=303)
