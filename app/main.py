@@ -10,12 +10,17 @@ from app.routers.comments import router as comments_router
 from app.routers.categories import router as categories_router
 from app.routers.pages import router as pages_router  # 页面路由
 from app.routers.auth import router as auth_router  # 认证路由
+from starlette.middleware.sessions import SessionMiddleware
+from app.config import settings
 
 # 创建所有数据库表
 Base.metadata.create_all(bind=engine)
 
 # 创建FastAPI应用实例
 app = FastAPI(title="Blog API", version="1.0")
+
+# 添加会话中间件
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
 # 挂载静态文件目录
 app.mount("/static", StaticFiles(directory="static"), name="static")

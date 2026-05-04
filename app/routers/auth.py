@@ -20,17 +20,22 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def get_current_user(request: Request, db: Session) -> Optional[dict]:
-    """获取当前登录用户（用于模板渲染）"""
-    # 暂时返回 None（无登录功能）
+    """从 session 获取当前登录用户"""
+    user_id = request.session.get("user_id")
+    if user_id:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            return {"id": user.id, "username": user.username}
     return None
 
 
 @router.get("/auth/login", response_class=HTMLResponse)
-def login_page(request: Request):
+def login_page(request: Request, db: Session = Depends(get_db)):
     """登录页面"""
+    current_user = get_current_user(request, db)
     return templates.TemplateResponse(
         "auth/login.html",
-        {"request": request}
+        {"request": request, "current_user": current_user}
     )
 
 
@@ -47,20 +52,21 @@ def login_submit(
     if not user or not pwd_context.verify(password, user.password):
         return templates.TemplateResponse(
             "auth/login.html",
-            {"request": request, "error": "用户名或密码错误"}
+            {"request": request, "error": "用户名或密码错误", "current_user": None}
         )
 
     # TODO: 启用 session 后恢复
-    # request.session["user_id"] = user.id
+    request.session["user_id"] = user.id
     return RedirectResponse(url="/", status_code=303)
 
 
 @router.get("/auth/register", response_class=HTMLResponse)
-def register_page(request: Request):
+def register_page(request: Request, db: Session = Depends(get_db)):
     """注册页面"""
+    current_user = get_current_user(request, db)
     return templates.TemplateResponse(
         "auth/register.html",
-        {"request": request}
+        {"request": request, "current_user": current_user}
     )
 
 
@@ -77,14 +83,14 @@ def register_submit(
     if existing_user:
         return templates.TemplateResponse(
             "auth/register.html",
-            {"request": request, "error": "用户名已存在"}
+            {"request": request, "error": "用户名已存在", "current_user": None}
         )
 
     existing_email = db.query(User).filter(User.email == email).first()
     if existing_email:
         return templates.TemplateResponse(
             "auth/register.html",
-            {"request": request, "error": "邮箱已被注册"}
+            {"request": request, "error": "邮箱已被注册", "current_user": None}
         )
 
     hashed_password = pwd_context.hash(password)
@@ -95,13 +101,13 @@ def register_submit(
     db.refresh(user)
 
     # TODO: 启用 session 后恢复
-    # request.session["user_id"] = user.id
-    return RedirectResponse(url="/auth/login", status_code=303)
+    request.session["user_id"] = user.id
+    return RedirectResponse(url="/auth/login?registered=true", status_code=303)
 
 
 @router.get("/auth/logout")
 def logout(request: Request):
     """退出登录"""
     # TODO: 启用 session 后恢复
-    # request.session.clear()
+    request.session.clear()
     return RedirectResponse(url="/", status_code=303)

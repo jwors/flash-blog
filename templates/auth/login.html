@@ -4,6 +4,11 @@
 
 {% block content %}
 <div class="row justify-content-center">
+    {% if request.query_params.get('registered') == 'true' %}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> 注册成功！请登录
+    </div>
+    {% endif %}
     <div class="col-md-6 col-lg-5">
         <div class="card shadow">
             <div class="card-header text-center">
