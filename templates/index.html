@@ -38,11 +38,9 @@
         {% for post in post_list %}
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="/p/{{ post.id }}" class="text-decoration-none">
-                                {{ post.title }}
-                            </a>
+                    <a href="/p/{{ post.id }}" class="card-body text-decoration-none" style="cursor: pointer;">
+                        <h5 class="card-title text-dark">
+                            {{ post.title }}
                         </h5>
                         <p class="card-text text-muted">
                             {{ post.summary or post.content[:100] }}...
@@ -63,7 +61,7 @@
                                 {% endfor %}
                             </div>
                         {% endif %}
-                    </div>
+                    </a>
                 </div>
             </div>
         {% endfor %}
