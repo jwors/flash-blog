@@ -8,6 +8,10 @@ from passlib.context import CryptContext  # 导入密码加密库
 from app.database import get_db  # 导入数据库会话依赖
 from app.models.user import User  # 导入用户模型
 from app.config import settings  # 导入配置
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # 创建路由器实例
 router = APIRouter(tags=['认证'])
@@ -48,7 +52,7 @@ def login_submit(
 ):
     """处理登录表单提交"""
     user = db.query(User).filter(User.username == username).first()
-
+    logger.info(f"user: {user}")
     if not user or not pwd_context.verify(password, user.password):
         return templates.TemplateResponse(
             "auth/login.html",

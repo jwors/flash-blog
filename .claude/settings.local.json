@@ -15,7 +15,12 @@
       "Bash(pkill -f uvicorn)",
       "Bash(pkill -f python)",
       "Bash(taskkill //F //PID 19608)",
-      "Bash(taskkill //F //PID 14176)"
+      "Bash(taskkill //F //PID 14176)",
+      "Bash(taskkill //F //IM python.exe)",
+      "Bash(git commit:*)",
+      "Bash(sqlite3 E:/chyProject/flask-blog/blog.db \".tables\")",
+      "Bash(sqlite3 E:/chyProject/flask-blog/blog.db \".schema users\")",
+      "Bash(pip show:*)"
     ]
   }
 }
