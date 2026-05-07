@@ -8,6 +8,7 @@ from app.database import get_db  # 导入数据库会话依赖
 from app.models.post import Post  # 导入文章模型
 from app.models.category import Category  # 导入分类模型
 from app.models.user import User  # 导入用户模型
+from app.models.comment import Comment  # 导入评论模型
 
 # 创建路由器实例
 router = APIRouter(tags=['页面'])
@@ -81,6 +82,18 @@ def post_detail(request: Request, post_id: int, db: Session = Depends(get_db)):
     if not post:
         return RedirectResponse(url="/")
 
+    # 获取文章评论
+    comments = db.query(Comment).filter(Comment.post_id == post_id).order_by(Comment.created_at.asc()).all()
+    comment_list = []
+    for c in comments:
+        comment_list.append({
+            "id": c.id,
+            "content": c.content,
+            "author_name": c.author.username if c.author else None,
+            "created_at": c.created_at,
+            "parent_id": c.parent_id
+        })
+
     return templates.TemplateResponse("post/detail.html", {
         "request": request,
         "post": {
@@ -94,7 +107,7 @@ def post_detail(request: Request, post_id: int, db: Session = Depends(get_db)):
             "updated_at": post.updated_at,
             "categories": [c.name for c in post.categories]
         },
-        "comments": [],
+        "comments": comment_list,
         "current_user": current_user
     })
 
@@ -140,3 +153,27 @@ def create_post_submit(
     db.refresh(post)
 
     return RedirectResponse(url=f"/p/{post.id}", status_code=303)
+
+
+@router.post("/comments")
+def create_comment_submit(
+    request: Request,
+    post_id: int = Form(...),
+    author_id: int = Form(...),
+    content: str = Form(...),
+    parent_id: Optional[int] = Form(None),
+    db: Session = Depends(get_db)
+):
+    """处理评论表单提交"""
+    comment = Comment(
+        content=content,
+        author_id=author_id,
+        post_id=post_id,
+        parent_id=parent_id
+    )
+
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
+
+    return RedirectResponse(url=f"/p/{post_id}", status_code=303)
